@@ -1,76 +1,76 @@
 import apiClient from './axios';
 
-export const loginAdmin = async ({ username, password }) => {
-  const response = await apiClient.post('/api/admin/login', { username, password });
+export const loginAdmin = async ({ email, password }) => {
+  const response = await apiClient.post('/admin/login', { email, password });
   return response.data;
 };
 
 export const fetchDashboardMetrics = async () => {
-  const response = await apiClient.get('/api/admin/dashboard');
+  const response = await apiClient.get('/admin/dashboard');
   return response.data;
 };
 
 export const fetchMenuItems = async (params = {}) => {
-  const response = await apiClient.get('/api/admin/menu', { params });
+  const response = await apiClient.get('/admin/menu', { params });
   return response.data;
 };
 
 export const createMenuItem = async (payload) => {
-  const response = await apiClient.post('/api/admin/menu', payload);
+  const response = await apiClient.post('/admin/menu', payload);
   return response.data;
 };
 
 export const updateMenuItem = async (id, payload) => {
-  const response = await apiClient.put(`/api/admin/menu/${id}`, payload);
+  const response = await apiClient.put(`/admin/menu/${id}`, payload);
   return response.data;
 };
 
 export const deleteMenuItem = async (id) => {
-  const response = await apiClient.delete(`/api/admin/menu/${id}`);
+  const response = await apiClient.delete(`/admin/menu/${id}`);
   return response.data;
 };
 
 export const fetchOrders = async () => {
-  const response = await apiClient.get('/api/admin/orders');
+  const response = await apiClient.get('/admin/orders');
   return response.data;
 };
 
 export const updateOrderStatus = async (id, status) => {
-  const response = await apiClient.put(`/api/admin/orders/${id}`, { status });
+  const response = await apiClient.put(`/admin/orders/${id}`, { status });
   return response.data;
 };
 
 export const deleteOrder = async (id) => {
-  const response = await apiClient.delete(`/api/admin/orders/${id}`);
+  const response = await apiClient.delete(`/admin/orders/${id}`);
   return response.data;
 };
 
 export const fetchUsers = async (params = {}) => {
-  const response = await apiClient.get('/api/admin/users', { params });
+  const response = await apiClient.get('/admin/users', { params });
   return response.data;
 };
 
 export const updateUserStatus = async (id, payload) => {
-  const response = await apiClient.put(`/api/admin/users/${id}`, payload);
+  const response = await apiClient.put(`/admin/users/${id}`, payload);
   return response.data;
 };
 
 export const deleteUser = async (id) => {
-  const response = await apiClient.delete(`/api/admin/users/${id}`);
+  const response = await apiClient.delete(`/admin/users/${id}`);
   return response.data;
 };
 
 export const fetchCategories = async () => {
-  const response = await apiClient.get('/api/admin/categories');
+  const response = await apiClient.get('/admin/categories');
   return response.data;
 };
 
 export const createCategory = async (payload) => {
-  const response = await apiClient.post('/api/admin/categories', payload);
+  const response = await apiClient.post('/admin/categories', payload);
   return response.data;
 };
 
 export const deleteCategory = async (id) => {
-  const response = await apiClient.delete(`/api/admin/categories/${id}`);
+  const response = await apiClient.delete(`/admin/categories/${id}`);
   return response.data;
 };
