@@ -8,14 +8,12 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <div className="flex">
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="flex-1 min-h-screen">
-          <Navbar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
-          <main className="p-4 md:p-6">
-            <Outlet />
-          </main>
-        </div>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex min-h-screen flex-col md:ml-72">
+        <Navbar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
+        <main className="flex-1 p-4 md:p-6">
+          <Outlet />
+        </main>
       </div>
     </div>
   );

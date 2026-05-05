@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { createCategory, deleteCategory, fetchCategories } from '../services/api';
+import { SkeletonCard } from '../components/SkeletonLoader';
+import { EmptyState } from '../components/EmptyState';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Categories = () => {
@@ -75,21 +77,34 @@ const Categories = () => {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-950">Category list</h2>
         <div className="mt-5 space-y-3">
-          {categories.map((category) => (
-            <div key={category._id} className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-semibold text-slate-900">{category.name}</p>
-                <p className="text-sm text-slate-600">Created at {new Date(category.createdAt).toLocaleDateString()}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(category._id)}
-                className="rounded-3xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
-              >
-                <FaTrash className="mr-2 inline" /> Delete
-              </button>
-            </div>
-          ))}
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))
+          ) : categories.length === 0 ? (
+            <EmptyState
+              title="No categories yet"
+              description="Create your first category to organize your menu items."
+            />
+          ) : (
+            <>
+              {categories.map((category) => (
+                <div key={category._id} className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-semibold text-slate-900">{category.name}</p>
+                    <p className="text-sm text-slate-600">Created at {new Date(category.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(category._id)}
+                    className="rounded-3xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                  >
+                    <FaTrash className="mr-2 inline" /> Delete
+                  </button>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
     </section>

@@ -31,7 +31,7 @@ export const deleteMenuItem = async (id) => {
 };
 
 export const fetchOrders = async () => {
-  const response = await apiClient.get('/api/orders');
+  const response = await apiClient.get('/api/admin/orders');
   return response.data;
 };
 

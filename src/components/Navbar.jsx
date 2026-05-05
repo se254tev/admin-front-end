@@ -1,13 +1,19 @@
-import { FaBell, FaSearch } from 'react-icons/fa';
+import { FaBell, FaBars, FaSearch } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
+const Navbar = ({ onMenuToggle }) => {
   const { logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur-md">
       <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-6">
-        <div className="flex items-center gap-3 text-slate-900">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onMenuToggle}
+            className="rounded-2xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 md:hidden"
+          >
+            <FaBars className="h-4 w-4" />
+          </button>
           <button className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold transition hover:bg-slate-100">
             Admin Panel
           </button>

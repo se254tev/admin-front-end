@@ -8,6 +8,8 @@ import {
   updateMenuItem,
 } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
+import { SkeletonCard } from '../components/SkeletonLoader';
+import { EmptyState } from '../components/EmptyState';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const emptyItem = {
@@ -161,7 +163,28 @@ const MenuManagement = () => {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Menu items</h2>
           {loading ? (
-            <LoadingSpinner />
+            <div className="mt-6 grid gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              title="No menu items found"
+              description={search ? "No items match your search criteria." : "Get started by adding your first menu item."}
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveItem(null);
+                    setForm(emptyItem);
+                  }}
+                  className="rounded-3xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  <FaPlus className="mr-2 inline" /> Add first item
+                </button>
+              }
+            />
           ) : (
             <div className="mt-6 grid gap-4">
               {filtered.map((item) => (

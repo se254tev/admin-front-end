@@ -3,6 +3,8 @@ import { FaSearch, FaTrash, FaUserSlash } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { deleteUser, fetchUsers, updateUserStatus } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
+import { SkeletonTable } from '../components/SkeletonLoader';
+import { EmptyState } from '../components/EmptyState';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Users = () => {
@@ -106,49 +108,58 @@ const Users = () => {
         </div>
 
         <div className="mt-6 overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse text-left text-sm text-slate-700">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-500">
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((user) => (
-                <tr key={user._id} className="border-b border-slate-200 bg-slate-50">
-                  <td className="px-4 py-4 font-semibold text-slate-900">{user.name}</td>
-                  <td className="px-4 py-4">{user.email}</td>
-                  <td className="px-4 py-4">{user.phone}</td>
-                  <td className="px-4 py-4">
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs ${user.active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                      {user.active ? 'Active' : 'Suspended'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleStatus(user)}
-                        className="rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
-                      >
-                        {user.active ? 'Suspend' : 'Restore'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => confirmDelete(user)}
-                        className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
-                      >
-                        <FaTrash className="mr-2 inline" /> Delete
-                      </button>
-                    </div>
-                  </td>
+          {loading ? (
+            <SkeletonTable rows={5} />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              title="No users found"
+              description={search ? "No users match your search criteria." : "No users have been registered yet."}
+            />
+          ) : (
+            <table className="min-w-full table-auto border-collapse text-left text-sm text-slate-700">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500">
+                  <th className="px-4 py-3">Name</th>
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Phone</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((user) => (
+                  <tr key={user._id} className="border-b border-slate-200 bg-slate-50">
+                    <td className="px-4 py-4 font-semibold text-slate-900">{user.name}</td>
+                    <td className="px-4 py-4">{user.email}</td>
+                    <td className="px-4 py-4">{user.phone}</td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs ${user.active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                        {user.active ? 'Active' : 'Suspended'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleStatus(user)}
+                          className="rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                        >
+                          {user.active ? 'Suspend' : 'Restore'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => confirmDelete(user)}
+                          className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+                        >
+                          <FaTrash className="mr-2 inline" /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

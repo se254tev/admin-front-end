@@ -3,6 +3,8 @@ import { FaCheckCircle, FaClock, FaTrash, FaTruck } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { deleteOrder, fetchOrders, updateOrderStatus } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
+import { SkeletonCard } from '../components/SkeletonLoader';
+import { EmptyState } from '../components/EmptyState';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const statusOptions = ['Pending', 'Preparing', 'Delivered', 'Cancelled'];
@@ -85,54 +87,67 @@ const Orders = () => {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-950">Orders</h2>
           <div className="mt-6 space-y-4">
-            {orders.map((order) => (
-              <div key={order._id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-base font-semibold text-slate-950">{order.customerName}</p>
-                    <p className="text-sm text-slate-600">{order.phone} • {order.location}</p>
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))
+            ) : orders.length === 0 ? (
+              <EmptyState
+                title="No orders yet"
+                description="Orders will appear here once customers start placing them."
+              />
+            ) : (
+              <>
+                {orders.map((order) => (
+                  <div key={order._id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-base font-semibold text-slate-950">{order.customerName}</p>
+                        <p className="text-sm text-slate-600">{order.phone} • {order.location}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">KES {order.totalAmount}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">{order.items.length} items</span>
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-700">{order.paymentStatus}</span>
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700">{order.status}</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="space-y-2 text-sm text-slate-600">
+                        <p>{order.items.map((item) => item.name).join(', ')}</p>
+                        <p>Order created: {new Date(order.createdAt).toLocaleString()}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {statusOptions.map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => handleStatusChange(order, status)}
+                            className="rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
+                          >
+                            {status}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrder(order)}
+                          className="rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                        >
+                          View details
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => scheduleDelete(order)}
+                          className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">KES {order.totalAmount}</span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">{order.items.length} items</span>
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-700">{order.paymentStatus}</span>
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700">{order.status}</span>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>{order.items.map((item) => item.name).join(', ')}</p>
-                    <p>Order created: {new Date(order.createdAt).toLocaleString()}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {statusOptions.map((status) => (
-                      <button
-                        key={status}
-                        type="button"
-                        onClick={() => handleStatusChange(order, status)}
-                        className="rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
-                      >
-                        {status}
-                      </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedOrder(order)}
-                      className="rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
-                    >
-                      View details
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scheduleDelete(order)}
-                      className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                ))}
+              </>
+            )}
           </div>
         </div>
 
