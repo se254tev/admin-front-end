@@ -1,4 +1,42 @@
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { fetchSettings } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
+import AccountModal from '../components/AccountModal';
+import SecurityModal from '../components/SecurityModal';
+import NotificationsModal from '../components/NotificationsModal';
+import ThemeModal from '../components/ThemeModal';
+import LoadingSpinner from '../components/LoadingSpinner';
+
 const Settings = () => {
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
+
+  // Modal states
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchSettings();
+      setSettings(data.user);
+    } catch (error) {
+      toast.error('Failed to load settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -14,11 +52,15 @@ const Settings = () => {
       {/* Settings Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
         {/* Account Card */}
-        <div className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300">
+        <button
+          onClick={() => setShowAccountModal(true)}
+          className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300 text-left"
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-slate-900">Account</h2>
               <p className="mt-2 text-sm text-slate-600">Manage admin profile and notification preferences.</p>
+              {settings?.name && <p className="mt-2 text-xs text-slate-500">{settings.name}</p>}
             </div>
             <div className="ml-4 inline-flex rounded-lg bg-blue-50 p-3 text-blue-600">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,14 +68,18 @@ const Settings = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Security Card */}
-        <div className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300">
+        <button
+          onClick={() => setShowSecurityModal(true)}
+          className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300 text-left"
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-slate-900">Security</h2>
               <p className="mt-2 text-sm text-slate-600">Update passwords, tokens, and session settings.</p>
+              <p className="mt-2 text-xs text-slate-500">Last updated: {settings?.updatedAt ? new Date(settings.updatedAt).toLocaleDateString() : 'Never'}</p>
             </div>
             <div className="ml-4 inline-flex rounded-lg bg-amber-50 p-3 text-amber-600">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,14 +87,20 @@ const Settings = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Notifications Card */}
-        <div className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300">
+        <button
+          onClick={() => setShowNotificationsModal(true)}
+          className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300 text-left"
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-slate-900">Notifications</h2>
               <p className="mt-2 text-sm text-slate-600">Configure email alerts and order updates.</p>
+              <p className="mt-2 text-xs text-slate-500">
+                {settings?.notifications?.newOrders ? '✓ Orders enabled' : '✗ Orders disabled'}
+              </p>
             </div>
             <div className="ml-4 inline-flex rounded-lg bg-emerald-50 p-3 text-emerald-600">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,14 +108,18 @@ const Settings = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Theme Card */}
-        <div className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300">
+        <button
+          onClick={() => setShowThemeModal(true)}
+          className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-slate-300 text-left"
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-slate-900">Theme</h2>
               <p className="mt-2 text-sm text-slate-600">Switch between light and dark sidebar experience.</p>
+              <p className="mt-2 text-xs text-slate-500 capitalize">Current: {theme} mode</p>
             </div>
             <div className="ml-4 inline-flex rounded-lg bg-indigo-50 p-3 text-indigo-600">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,8 +127,32 @@ const Settings = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </button>
       </div>
+
+      {/* Modals */}
+      <AccountModal
+        open={showAccountModal}
+        onClose={() => {
+          setShowAccountModal(false);
+          loadSettings();
+        }}
+        initialData={settings}
+      />
+      <SecurityModal open={showSecurityModal} onClose={() => setShowSecurityModal(false)} />
+      <NotificationsModal
+        open={showNotificationsModal}
+        onClose={() => {
+          setShowNotificationsModal(false);
+          loadSettings();
+        }}
+        initialData={settings}
+      />
+      <ThemeModal
+        open={showThemeModal}
+        onClose={() => setShowThemeModal(false)}
+        initialTheme={theme}
+      />
     </div>
   );
 };

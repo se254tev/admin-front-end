@@ -92,3 +92,30 @@ export const deleteCategory = async (id) => {
   const response = await apiClient.delete(`/admin/categories/${id}`);
   return response.data;
 };
+
+// Settings API endpoints
+export const fetchSettings = async () => {
+  const response = await apiClient.get('/admin/settings');
+  return response.data;
+};
+
+export const updateAccountSettings = async (payload) => {
+  const response = await apiClient.put('/admin/settings/account', payload);
+  return response.data;
+};
+
+export const updatePassword = async (payload) => {
+  const response = await apiClient.put('/admin/settings/password', payload);
+  return response.data;
+};
+
+export const updateNotificationSettings = async (payload) => {
+  const response = await apiClient.put('/admin/settings/notifications', payload);
+  return response.data;
+};
+
+export const updateThemeSettings = async (payload) => {
+  const response = await apiClient.put('/admin/settings/theme', payload);
+  return response.data;
+};
+
