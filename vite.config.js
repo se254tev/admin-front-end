@@ -6,4 +6,8 @@ export default defineConfig({
   server: {
     port: 4173,
   },
+  define: {
+    // Ensure environment variables are properly injected during build
+    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
+  },
 });
