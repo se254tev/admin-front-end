@@ -7,12 +7,20 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="flex min-h-screen flex-col bg-slate-50 md:flex-row">
+      {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex min-h-screen flex-col md:ml-72">
+      
+      {/* Main content */}
+      <div className="flex w-full flex-col md:ml-72">
+        {/* Navbar */}
         <Navbar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
-        <main className="flex-1 p-4 md:p-6">
-          <Outlet />
+        
+        {/* Page content */}
+        <main className="flex-1 overflow-auto bg-slate-50">
+          <div className="px-4 py-6 sm:px-6 lg:px-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
