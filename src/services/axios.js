@@ -7,16 +7,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Validate that API URL is defined
 if (!API_BASE_URL) {
-  const errorMsg = 'VITE_API_URL environment variable is not defined. Please configure it in your deployment platform.';
-  if (import.meta.env.DEV) {
-    console.warn(errorMsg);
-  } else {
-    console.error(errorMsg);
-  }
+  throw new Error('VITE_API_URL environment variable is not defined. Please configure it in your deployment platform.');
 }
 
 const apiClient = axios.create({
-  baseURL: API_BASE_URL || 'https://bingo-meal-backend.onrender.com',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
