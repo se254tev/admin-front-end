@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaPlus, FaSearch, FaTrash, FaEdit } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import {
   createMenuItem,
   deleteMenuItem,
+  fetchCategories,
   fetchMenuItems,
   updateMenuItem,
 } from '../services/api';
@@ -23,6 +24,7 @@ const emptyItem = {
 
 const MenuManagement = () => {
   const [menuItems, setMenuItems] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -43,17 +45,28 @@ const MenuManagement = () => {
     }
   };
 
+  const fetchCategoryOptions = async () => {
+    try {
+      const data = await fetchCategories();
+      setCategories(Array.isArray(data) ? data : data.categories || []);
+    } catch (error) {
+      toast.error('Unable to load categories');
+    }
+  };
+
   useEffect(() => {
     fetchItems();
+    fetchCategoryOptions();
   }, []);
 
   useEffect(() => {
-    const filteredItems = menuItems.filter((item) =>
-      [item.name, item.category, item.description]
+    const filteredItems = menuItems.filter((item) => {
+      const categoryName = item.category?.name || item.category || '';
+      return [item.name, categoryName, item.description]
         .join(' ')
         .toLowerCase()
-        .includes(search.toLowerCase())
-    );
+        .includes(search.toLowerCase());
+    });
     setFiltered(filteredItems);
   }, [menuItems, search]);
 
@@ -117,7 +130,7 @@ const MenuManagement = () => {
     setForm({
       name: item.name,
       description: item.description || '',
-      category: item.category,
+      category: item.category?._id || item.category || '',
       price: item.price,
       image: item.image || '',
       inStock: item.inStock,
@@ -192,7 +205,7 @@ const MenuManagement = () => {
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-lg font-semibold text-slate-950">{item.name}</p>
-                      <p className="mt-1 text-sm text-slate-600">{item.category}</p>
+                      <p className="mt-1 text-sm text-slate-600">{item.category?.name || item.category}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`rounded-full px-3 py-1 text-xs ${item.inStock ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
@@ -255,14 +268,24 @@ const MenuManagement = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="text-sm text-slate-600">Category</span>
-                <input
-                  type="text"
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
-                  required
-                  className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-400"
-                />
+                {categories.length > 0 ? (
+                  <select
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    required
+                    className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-400"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="mt-2 text-sm text-rose-600">Add categories first in the Categories page.</div>
+                )}
               </label>
               <label className="block">
                 <span className="text-sm text-slate-600">Price</span>

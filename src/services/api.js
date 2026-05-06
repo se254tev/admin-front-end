@@ -16,12 +16,30 @@ export const fetchMenuItems = async (params = {}) => {
 };
 
 export const createMenuItem = async (payload) => {
-  const response = await apiClient.post('/admin/menu', payload);
+  const finalPayload = {
+    name: payload.name,
+    description: payload.description,
+    category: payload.category,
+    price: payload.price,
+    image: payload.image,
+    inStock: payload.inStock,
+  };
+  console.log('Sending createMenuItem payload:', finalPayload);
+  const response = await apiClient.post('/admin/menu', finalPayload);
   return response.data;
 };
 
 export const updateMenuItem = async (id, payload) => {
-  const response = await apiClient.put(`/admin/menu/${id}`, payload);
+  const finalPayload = {
+    name: payload.name,
+    description: payload.description,
+    category: payload.category,
+    price: payload.price,
+    image: payload.image,
+    inStock: payload.inStock,
+  };
+  console.log('Sending updateMenuItem payload:', finalPayload);
+  const response = await apiClient.put(`/admin/menu/${id}`, finalPayload);
   return response.data;
 };
 
