@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 
 const Login = () => {
   const { login, loading } = useAuth();
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
 
   const handleChange = (e) => {
     setCredentials((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -35,15 +35,15 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="text-sm text-slate-300">Username</span>
+                <span className="text-sm text-slate-300">Email</span>
                 <input
-                  type="text"
-                  name="username"
-                  value={credentials.username}
+                  type="email"
+                  name="email"
+                  value={credentials.email}
                   onChange={handleChange}
                   required
                   className="mt-2 w-full rounded-3xl border border-slate-800 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-slate-500"
-                  placeholder="admin"
+                  placeholder="admin@bingo.com"
                 />
               </label>
               <label className="block">
@@ -70,7 +70,7 @@ const Login = () => {
           </form>
 
           <div className="rounded-3xl border border-slate-800 bg-slate-950 px-5 py-4 text-sm text-slate-400">
-            Use <span className="font-semibold text-white">admin</span> / <span className="font-semibold text-white">password</span> or set custom credentials in the backend environment.
+            Use <span className="font-semibold text-white">admin@bingo.com</span> / <span className="font-semibold text-white">admin123</span> to sign in.
           </div>
         </div>
       </div>
