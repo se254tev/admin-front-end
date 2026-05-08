@@ -34,7 +34,7 @@ const Sidebar = ({ open, onClose }) => {
         <div className="flex h-full flex-col">
           {/* Logo/Branding */}
           <div className="border-b border-slate-800 px-6 py-6">
-            <div className="text-lg font-bold tracking-tight text-white">Bingo Meal Admin</div>
+            <div className="text-lg font-bold tracking-tight text-white">Company's name Meal Admin</div>
             <p className="mt-2 text-xs text-slate-400">Merchant dashboard</p>
           </div>
 

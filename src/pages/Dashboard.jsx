@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FaDollarSign, FaHamburger, FaShoppingCart, FaUsers } from 'react-icons/fa';
+import { BarChart3 } from 'lucide-react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { fetchDashboardMetrics } from '../services/api';
 import CardMetric from '../components/CardMetric';
@@ -46,8 +47,9 @@ const Dashboard = () => {
             <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Dashboard</p>
             <h1 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Welcome back, manager</h1>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">
-            📊 Live analytics
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">
+            <BarChart3 className="h-4 w-4" strokeWidth={1.5} />
+            <span>Live analytics</span>
           </div>
         </div>
       </div>

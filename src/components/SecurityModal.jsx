@@ -70,7 +70,7 @@ const SecurityModal = ({ open, onClose }) => {
         className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
       >
         <h3 className="text-xl font-semibold text-slate-900">Change Password</h3>
-        <p className="mt-2 text-sm text-slate-600">Update your password to keep your account secure</p>
+        <p className="mt-2 text-sm text-slate-600">Update your password</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {/* Current Password */}
