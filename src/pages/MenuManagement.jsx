@@ -20,6 +20,8 @@ const emptyItem = {
   price: '',
   image: '',
   inStock: true,
+  featured: false,
+  available: true,
 };
 
 const MenuManagement = () => {
@@ -134,6 +136,8 @@ const MenuManagement = () => {
       price: item.price,
       image: item.image || '',
       inStock: item.inStock,
+      featured: item.featured || false,
+      available: item.available !== undefined ? item.available : true,
     });
   };
 
@@ -211,6 +215,16 @@ const MenuManagement = () => {
                       <span className={`rounded-full px-3 py-1 text-xs ${item.inStock ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                         {item.inStock ? 'Available' : 'Unavailable'}
                       </span>
+                      {item.featured && (
+                        <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs text-yellow-700">
+                          Featured
+                        </span>
+                      )}
+                      {!item.available && (
+                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">
+                          Hidden
+                        </span>
+                      )}
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">KES {item.price}</span>
                     </div>
                   </div>
@@ -320,6 +334,26 @@ const MenuManagement = () => {
                 className="h-4 w-4 rounded border-slate-300 text-slate-900"
               />
               Available for ordering
+            </label>
+            <label className="flex items-center gap-3 text-sm text-slate-600">
+              <input
+                type="checkbox"
+                name="featured"
+                checked={form.featured}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border-slate-300 text-slate-900"
+              />
+              Featured meal
+            </label>
+            <label className="flex items-center gap-3 text-sm text-slate-600">
+              <input
+                type="checkbox"
+                name="available"
+                checked={form.available}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border-slate-300 text-slate-900"
+              />
+              Available (show in menu)
             </label>
             <button
               type="submit"
