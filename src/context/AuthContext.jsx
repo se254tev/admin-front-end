@@ -16,6 +16,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
+  const clearAuthState = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_token');
+  };
+
   const login = async (credentials) => {
     setLoading(true);
     const data = await loginAdmin(credentials);
@@ -27,11 +34,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('admin_token');
+    clearAuthState();
     navigate('/admin/login');
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      clearAuthState();
+    };
+
+    const handleStorage = (event) => {
+      if (event.key === 'admin_token' && !event.newValue) {
+        clearAuthState();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout, loading }}>

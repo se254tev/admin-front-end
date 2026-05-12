@@ -22,6 +22,10 @@ const emptyItem = {
   inStock: true,
   featured: false,
   available: true,
+  isAddon: false,
+  stockCount: 0,
+  availableTimes: ['All Day'],
+  relatedMeals: [],
 };
 
 const MenuManagement = () => {
@@ -34,6 +38,7 @@ const MenuManagement = () => {
   const [form, setForm] = useState(emptyItem);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -73,11 +78,31 @@ const MenuManagement = () => {
   }, [menuItems, search]);
 
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, value, type, checked, selectedOptions } = event.target;
+    if (type === 'select-multiple') {
+      setForm((prev) => ({
+        ...prev,
+        [name]: Array.from(selectedOptions, (option) => option.value),
+      }));
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleAvailableTimeChange = (timeValue) => {
+    setForm((prev) => {
+      const times = prev.availableTimes || [];
+      return {
+        ...prev,
+        availableTimes: times.includes(timeValue)
+          ? times.filter((time) => time !== timeValue)
+          : [...times, timeValue],
+      };
+    });
   };
 
   const handleFileChange = async (event) => {
@@ -92,7 +117,44 @@ const MenuManagement = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Frontend validation
+    const trimmedName = form.name.trim();
+    if (!trimmedName) {
+      toast.error('Name is required');
+      return;
+    }
+    if (trimmedName.length < 2 || trimmedName.length > 100) {
+      toast.error('Name must be between 2 and 100 characters');
+      return;
+    }
+
+    if (!form.price || isNaN(form.price) || form.price <= 0) {
+      toast.error('Valid price is required');
+      return;
+    }
+    if (form.price > 10000) {
+      toast.error('Price cannot exceed KES 10,000');
+      return;
+    }
+
+    if (!form.category) {
+      toast.error('Category is required');
+      return;
+    }
+
+    if (form.description && form.description.length > 500) {
+      toast.error('Description cannot exceed 500 characters');
+      return;
+    }
+
+    if (form.stockCount < 0 || isNaN(form.stockCount)) {
+      toast.error('Stock count must be a non-negative number');
+      return;
+    }
+
     try {
+      setSubmitting(true);
       if (activeItem) {
         await updateMenuItem(activeItem._id, form);
         toast.success('Menu item updated');
@@ -104,7 +166,9 @@ const MenuManagement = () => {
       setActiveItem(null);
       fetchItems();
     } catch (error) {
-      toast.error('Unable to save menu item');
+      toast.error(error.response?.data?.error || 'Unable to save menu item');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -138,6 +202,10 @@ const MenuManagement = () => {
       inStock: item.inStock,
       featured: item.featured || false,
       available: item.available !== undefined ? item.available : true,
+      isAddon: item.isAddon || false,
+      stockCount: item.stockCount ?? 0,
+      availableTimes: item.availableTimes || ['All Day'],
+      relatedMeals: item.relatedMeals?.map((related) => related._id || related) || [],
     });
   };
 
@@ -168,9 +236,9 @@ const MenuManagement = () => {
                 setActiveItem(null);
                 setForm(emptyItem);
               }}
-              className="rounded-3xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="inline-flex items-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md active:scale-95"
             >
-              <FaPlus className="mr-2 inline" /> New item
+              <FaPlus className="mr-2 h-4 w-4" /> New item
             </button>
           </div>
         </div>
@@ -215,6 +283,16 @@ const MenuManagement = () => {
                       <span className={`rounded-full px-3 py-1 text-xs ${item.inStock ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                         {item.inStock ? 'Available' : 'Unavailable'}
                       </span>
+                      {item.isAddon && (
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-700">
+                          Add-on
+                        </span>
+                      )}
+                      {item.stockCount !== undefined && (
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
+                          {item.stockCount} in stock
+                        </span>
+                      )}
                       {item.featured && (
                         <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs text-yellow-700">
                           Featured
@@ -234,16 +312,16 @@ const MenuManagement = () => {
                       <button
                         type="button"
                         onClick={() => startEdit(item)}
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
+                        className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md active:scale-95"
                       >
-                        <FaEdit className="mr-2 inline" /> Edit
+                        <FaEdit className="mr-2 h-4 w-4" /> Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => confirmDelete(item)}
-                        className="rounded-2xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm text-rose-700 transition hover:bg-rose-100"
+                        className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 shadow-sm transition-all hover:bg-red-100 hover:shadow-md active:scale-95"
                       >
-                        <FaTrash className="mr-2 inline" /> Delete
+                        <FaTrash className="mr-2 h-4 w-4" /> Delete
                       </button>
                     </div>
                   </div>
@@ -325,41 +403,123 @@ const MenuManagement = () => {
             {form.image && (
               <img src={form.image} alt="Preview" className="mt-3 h-40 w-full rounded-3xl object-cover" />
             )}
-            <label className="flex items-center gap-3 text-sm text-slate-600">
+            <div className="space-y-4">
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Available for ordering</span>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, inStock: !prev.inStock }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    form.inStock ? 'bg-slate-900' : 'bg-slate-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      form.inStock ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Featured meal</span>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, featured: !prev.featured }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    form.featured ? 'bg-orange-500' : 'bg-slate-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      form.featured ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Available (show in menu)</span>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, available: !prev.available }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    form.available ? 'bg-green-500' : 'bg-slate-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      form.available ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+              <label className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Add-on item</span>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, isAddon: !prev.isAddon }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    form.isAddon ? 'bg-blue-500' : 'bg-slate-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      form.isAddon ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+            </div>
+            <label className="block">
+              <span className="text-sm text-slate-600">Stock count</span>
               <input
-                type="checkbox"
-                name="inStock"
-                checked={form.inStock}
+                type="number"
+                name="stockCount"
+                value={form.stockCount}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-slate-300 text-slate-900"
+                min="0"
+                className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-400"
               />
-              Available for ordering
             </label>
-            <label className="flex items-center gap-3 text-sm text-slate-600">
-              <input
-                type="checkbox"
-                name="featured"
-                checked={form.featured}
+            <div className="block">
+              <span className="text-sm text-slate-600">Available times</span>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {['Breakfast', 'Lunch', 'Dinner', 'All Day'].map((option) => (
+                  <label key={option} className="flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={(form.availableTimes || []).includes(option)}
+                      onChange={() => handleAvailableTimeChange(option)}
+                      className="h-4 w-4 rounded border-slate-300 text-slate-900"
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <label className="block">
+              <span className="text-sm text-slate-600">Related meals</span>
+              <select
+                name="relatedMeals"
+                multiple
+                value={form.relatedMeals}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-slate-300 text-slate-900"
-              />
-              Featured meal
-            </label>
-            <label className="flex items-center gap-3 text-sm text-slate-600">
-              <input
-                type="checkbox"
-                name="available"
-                checked={form.available}
-                onChange={handleChange}
-                className="h-4 w-4 rounded border-slate-300 text-slate-900"
-              />
-              Available (show in menu)
+                className="mt-2 w-full min-h-[120px] rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-400"
+              >
+                {menuItems
+                  .filter((item) => !activeItem || item._id !== activeItem._id)
+                  .map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.name}
+                    </option>
+                  ))}
+              </select>
             </label>
             <button
               type="submit"
-              className="w-full rounded-3xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              disabled={submitting}
+              className="w-full rounded-3xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {activeItem ? 'Update item' : 'Save item'}
+              {submitting ? 'Saving...' : activeItem ? 'Update item' : 'Save item'}
             </button>
           </form>
         </div>

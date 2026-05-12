@@ -14,6 +14,7 @@ const Users = () => {
   const [search, setSearch] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [targetUser, setTargetUser] = useState(null);
+  const [updatingUsers, setUpdatingUsers] = useState(new Set());
 
   const loadUsers = async () => {
     setLoading(true);
@@ -43,12 +44,19 @@ const Users = () => {
   }, [search, users]);
 
   const handleToggleStatus = async (user) => {
+    setUpdatingUsers(prev => new Set(prev).add(user._id));
     try {
       await updateUserStatus(user._id, { active: !user.active });
       toast.success('User status updated');
       loadUsers();
     } catch (error) {
       toast.error('Unable to update user');
+    } finally {
+      setUpdatingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(user._id);
+        return newSet;
+      });
     }
   };
 
@@ -142,16 +150,17 @@ const Users = () => {
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(user)}
-                          className="rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                          disabled={updatingUsers.has(user._id)}
+                          className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                          {user.active ? 'Suspend' : 'Restore'}
+                          {updatingUsers.has(user._id) ? '...' : user.active ? 'Suspend' : 'Restore'}
                         </button>
                         <button
                           type="button"
                           onClick={() => confirmDelete(user)}
-                          className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+                          className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 shadow-sm transition-all hover:bg-red-100 hover:shadow-md active:scale-95"
                         >
-                          <FaTrash className="mr-2 inline" /> Delete
+                          <FaTrash className="mr-2 h-3 w-3" /> Delete
                         </button>
                       </div>
                     </td>

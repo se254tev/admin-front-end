@@ -10,6 +10,7 @@ const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const loadCategories = async () => {
     setLoading(true);
@@ -29,13 +30,34 @@ const Categories = () => {
 
   const handleAdd = async (event) => {
     event.preventDefault();
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      toast.error('Category name is required');
+      return;
+    }
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
+      toast.error('Category name must be between 2 and 50 characters');
+      return;
+    }
+
+    // Check for duplicate (case-insensitive)
+    const exists = categories.some(cat => cat.name.toLowerCase() === trimmedName.toLowerCase());
+    if (exists) {
+      toast.error('Category already exists');
+      return;
+    }
+
     try {
-      await createCategory({ name });
+      setSubmitting(true);
+      await createCategory({ name: trimmedName });
       toast.success('Category added');
       setName('');
       loadCategories();
     } catch (error) {
-      toast.error('Unable to add category');
+      toast.error(error.response?.data?.error || 'Unable to add category');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -67,8 +89,8 @@ const Categories = () => {
               className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               required
             />
-            <button type="submit" className="rounded-3xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-              <FaPlus className="mr-2 inline" /> Add category
+            <button type="submit" disabled={submitting} className="inline-flex items-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-70">
+              <FaPlus className="mr-2 h-4 w-4" /> {submitting ? 'Adding...' : 'Add category'}
             </button>
           </form>
         </div>
@@ -97,9 +119,9 @@ const Categories = () => {
                   <button
                     type="button"
                     onClick={() => handleDelete(category._id)}
-                    className="rounded-3xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                    className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm transition-all hover:bg-red-100 hover:shadow-md active:scale-95"
                   >
-                    <FaTrash className="mr-2 inline" /> Delete
+                    <FaTrash className="mr-2 h-4 w-4" /> Delete
                   </button>
                 </div>
               ))}

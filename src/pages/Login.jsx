@@ -43,7 +43,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   className="mt-2 w-full rounded-3xl border border-slate-800 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-slate-500"
-                  placeholder="admin@bingo.com"
+                  placeholder="Enter your email"
                 />
               </label>
               <label className="block">
@@ -68,10 +68,6 @@ const Login = () => {
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-
-          <div className="rounded-3xl border border-slate-800 bg-slate-950 px-5 py-4 text-sm text-slate-400">
-            Use <span className="font-semibold text-white">admin@bingo.com</span> / <span className="font-semibold text-white">admin123</span> to sign in.
-          </div>
         </div>
       </div>
     </div>
